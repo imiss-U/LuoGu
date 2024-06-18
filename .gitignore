@@ -1,0 +1,11 @@
+/.vscode
+_[1-9].cpp
+debug.cpp
+Init.cpp
+OJ*.cpp
+table.cpp
+temp.cpp
+template.md
+T*.cpp
+P1102.cpp
+P1102.md

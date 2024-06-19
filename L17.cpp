@@ -1,13 +1,4 @@
-/**
- * @file L17.cpp
- * @author zhangtengfei (20226472@stu.neu.edu.cn)
- * @brief 给定一个仅包含数字 2-9 的字符串，返回所有它能表示的字母组合。
- * 给出数字到字母的映射如下（与电话按键相同）。注意 1 不对应任何字母。
- * @version 0.1
- * @date 2024-03-12
- *
- *
- */
+
 #include <iostream>
 #include <vector>
 #include <string>

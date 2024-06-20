@@ -8,13 +8,13 @@ class Solution {
 public:
     vector<string> res;
     string subres;
-    void backtracing(int n, string& str, int startindex) {
+    void backtracing(int n, string& str, int index) {
         if (subres.size() == n)
             res.push_back(subres);
-        string letter = umap[str[startindex] - '0'];
+        string letter = umap[str[index] - '0'];
         for (int i = 0; i < letter.size(); i++) {
             subres = subres + letter[i];
-            backtracing(n, str, startindex + 1);
+            backtracing(n, str, index + 1);
             subres.pop_back();
         }
     }

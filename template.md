@@ -145,5 +145,15 @@ A: 这实质上是剪枝操作。题目中要求每次选取`k`个数，而当�
 
 2. [电话号码](https://leetcode.cn/problems/letter-combinations-of-a-phone-number/description/)  
 
-Q: 这里的`index`是什么
+Q: 这里的`index`是什么  
 A: 这里面的`index`不同于之前的`startindex`，是用来判断当前遍历几个数字的，在循环体中与`i`没关系。
+
+3. [组合总和](https://leetcode.cn/problems/combination-sum/description/)  
+   
+Q: 与前面的题相比不同点在什么地方？  
+A: 显而易见的，题目中说明“同一个数字可以无限制的使用”，也就是说数字可以出现很多次，那么循环体中的迭代函数的```startindex```就不用加一（详见[L39](D://Vscode//Code//Cpp_algorithm//LuoGu//L39.cpp)第19行）另外值得注意的是：判断需不需要```startindex```要看被选取的集合，如果是从一个集合中选区的话就要用```startindex```，否则不需要。以上经验判断仅在组合问题中奏效，排列问题与其不同。
+
+4. [组合总和II](https://leetcode.cn/problems/combination-sum-ii/description/)  
+   
+Q: 这题与上一题的区别又是什么？  
+A: 根据题目要求：同一个数字只能使用一次，而且集合中包含相同元素且最终结果中却不能包含有重复的组合，因此需要对结果进行去重。（用```set或map```会超时）所以本题最大的难点在于如何去重，其它的地方与上一题差别不大。可使用```used```数组进行去重，对已使用的数字标记为```true```，对标记为```false```的元素进行选取，选取之后再更新标记即可

@@ -6,6 +6,7 @@
 3. 若价值有负数，则非零下标要初始化为负无穷，0下标仍为0
 4. **<font color = green>在求最大值的同时若要求将背包装满，则非零下标初始化为负无穷，0下标仍为0；若未要求一定要将背包装满则正常初始化</font>**
 5. **<font color = orange>若问达到某一种目的有几种方法，一般初始化为$res[0]=1$，其余正常。递归公式：$res[j] += res[j - nums[i]]$ [洛谷P1164](https://www.luogu.com.cn/problem/P1164)</font>**  [洛谷P2663](https://www.luogu.com.cn/problem/P2663)好像也是这个意思？
+6. （2025.3.20补档）你会发现其实把背包装满的问题其实就是问有几种方法（因为把背包装满大多只有一种情况）
 
 ## <font color = blue>完全背包 </font>
 $weight$为占用空间数组，$V$代表背包体积
@@ -150,11 +151,13 @@ A: 这里面的`index`不同于之前的`startindex`，是用来判断当前遍�
 
 3. [组合总和](https://leetcode.cn/problems/combination-sum/description/)  
    
+
 Q: 与前面的题相比不同点在什么地方？  
 A: 显而易见的，题目中说明“同一个数字可以无限制的使用”，也就是说数字可以出现很多次，那么循环体中的迭代函数的```startindex```就不用加一（详见[L39](D://Vscode//Code//Cpp_algorithm//LuoGu//L39.cpp)第19行）另外值得注意的是：判断需不需要```startindex```要看被选取的集合，如果是从一个集合中选区的话就要用```startindex```，否则不需要。以上经验判断仅在组合问题中奏效，排列问题与其不同。
 
 4. [组合总和II](https://leetcode.cn/problems/combination-sum-ii/description/)  
    
+
 Q: 这题与上一题的区别又是什么？  
 A: 根据题目要求：同一个数字只能使用一次，而且集合中包含相同元素且最终结果中却不能包含有重复的组合，因此需要对结果进行去重。（用```set或map```会超时）所以本题最大的难点在于如何去重，其它的地方与上一题差别不大。可使用```used```数组进行去重，对已使用的数字标记为```true```，对标记为```false```的元素进行选取，选取之后再更新标记即可
 
@@ -172,3 +175,157 @@ A: 根据题目要求：同一个数字只能使用一次，而且集合中包�
 
 3. 集合中无重复元素，要求结果中不能有重复元素：使用```startindex```，循环体中```startindex```每次加一
 4. 集合中右重复元素，要求结果中不能有重复元素：回溯前对集合排序，将相同值的元素放在一起，使用```used```数组去重（使用```startindex```去重也可）
+
+## 快速幂
+用于计算大整数次幂，时间复杂度可由$O(n)降至O(logn)$
+```c++
+long long ans = 1;
+long long f(int a, int b, int mod) {            // 求a的b次幂，结果对mod求余
+    while (b) {
+        if (b & 1) {
+            ans *= a;
+            ans %= mod;
+        }
+        a *= a;
+        a %= mod;
+        b >>= 1;
+    }
+    return ans;
+}
+```
+
+## 离散化
+常用于仅关注数据关系（大小）而不注重具体数值的题目，可降低时间和空间复杂度  
+```c++
+int n;
+cin >> n;
+vector<int> a(n + 1), t(n + 1);         // a表示要进行离散化的数据，t是副本
+for (int i = 1; i < n; i++) {
+    cin >> a[i];
+    t[i] = a[i];
+}
+sort(t + 1, t + n + 1);
+int m = unique(t + 1, t + n + 1) - t - 1;
+for (int i = 1; i <= n; i++) {
+    a[i] = lower_bound(t + 1, t + m + 1, t[i]) - t;
+    cout << a[i];
+}
+```
+
+## 单调栈
+指栈中元素有序：单调递增或单调递减
+```c++
+int num[10];
+for (int i = 0; i < 10; i++)
+    cin >> num[i];
+stack<int> s;
+for (int a : num) {
+    if (s.empty() || s.top() > a)
+        s.push(a);
+    else {
+        while (!s.empty() && s.top() < a)
+            s.pop();
+        s.push(a);
+    }
+}
+```
+
+## 单调队列
+同单调栈，可一边进一边出。多用于滑动窗口和最大序列和
+具体实现看例题  
+（2025.3.25补档）  代码模板如下：
+```c++
+int a[N + 1];   // a是待进入队列的数组，一般从1开始
+deque<int> q;
+q.insert(1);    // 先将下标1插入
+for (int i = 2; i <= N; i++) {
+    while (!q.empty() && i - q.front() > m) // 移除超过窗口大小的元素
+        q.pop_front();
+    cout << q.front() << "\n";   // 输出最小值（以最小值为例）
+    while (!q.empty() && a[q.back()] > a[i])    // 移除队列中比当前元素大的元素
+        q.pop_back();
+    q.push_back(i);  // 将当前元素插入队列中
+}
+```
+<font color = red> 注意：  
+1. 实现单调队列时要注意：进队列的是下标不是数！
+2. 循环体内部大概有四步：
+   1. 移除过期元素（在窗口外侧的元素）
+   2. 输出最小（大）的元素（可选，根据题意）
+   3. 移除队列尾部比当前元素大（小）的元素
+   4. 将当前元素下标插入队列尾部
+这四个步骤顺序不能随意调换
+3. 求最小值队列递增，求最大值队列递减</font>  
+
+相关题目[P1440](https://www.luogu.com.cn/problem/P1440)
+
+## 字典树
+详见[test.cpp](./test.cpp)
+
+## 并查集
+并查集是用于管理数据的一种数据结构，实现为一颗森林，每棵树表示一个集合，树中的节点表示集合中的元素。并查集支持查找和合并操作。实现细节如下：  
+```c++
+struct dsu {
+    vector<int> fa;
+    dsu(int n): fa(n + 1) {
+        for (int i = 1; i <= n; i++)
+            fa[i] = i;
+    }
+
+    int find(int x) {       // 查找操作
+        return fa[x] == x ? x : find(x);
+    }
+
+    void merge(int x, int y) {  // 合并操作
+        fa[find(x)] = find(y);
+    }
+};
+```
+相关题目[P3367](https://www.luogu.com.cn/problem/P3367)  
+
+## 堆
+分为大根堆（根最大）和小根堆（根最小）。要注意堆中位于同一节点的子节点的大小是不固定的，可以左节点大也可以右节点大。  
+具体实现如下（以大根堆为例）：  
+```c++
+class Heap {
+    vector<int> num;
+    void push_up(int i) {
+        while (i > 0) {
+            int parent = (i - 1) / 2;
+            if (num[parent] >= num[i])
+                break;
+            else {
+                swap(num[parent], num[i]);
+            }
+            i = parent;
+        }
+    }
+
+    void push_down(int i) {
+        while (i <= num.size()) {
+            int left = 2 * i + 1, right = 2 * i + 2;
+            if (left > num.size())
+                break;
+            int mini_child = left;
+            if (right < num.size() && left > right)
+                mini_child = right;
+            if (num[mini_child] < num[i])
+                swap(num[mini_child] < num[i])
+            else 
+                break;
+            i = mini_child;
+        }
+    }
+
+    void push(int x) {
+        num.push_back(x);
+        push_up(num.size() - 1);
+    }
+
+    void pop(int x) {
+        swap(nu[0], num[num.size() - 1]);
+        num.pop_back();
+        push_down(0)
+    };
+};
+```
